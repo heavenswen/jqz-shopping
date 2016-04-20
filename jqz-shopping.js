@@ -1,8 +1,8 @@
 ;(function($){
 	$.jqz_shopping = function(arr){
 		var init = {
-			//条目对象
-			cell:'.li',
+			//条目对象,和单项附加事件
+			cell:['.li',function(){}],
 			//单价对象，同步,输出对象
 			unit:['.unit',false],
 			//数量对象
@@ -17,7 +17,7 @@
 		//初始化
 		if (arr) $.extend(init,arr);
 		var obj = this,
-			$li = $(init.cell),
+			cell = typeof init.cell == 'object'?init.cell['0']:init.cell,
 			total = 0,
 			unit = [];		
 		//当没有输出对象默认单价对象为输出对象
@@ -39,9 +39,11 @@
 		//2，计算个条目的价格
 		function cell_money(){
 			total = 0;//清0
-			for(var i=0;i<$li.size();i++)
+			var $cell = $(cell);
+			//遍历计算
+			for(var i=0;i<$cell.size();i++)
 			{
-				var $this = $li.eq(i),
+				var $this = $cell.eq(i),
 					money = js_unit($this).toFixed(init.fixed);
 				//单项价格
 				if(unit.syn)$this.find(unit.log).text(money);
@@ -49,14 +51,14 @@
 				if(init.check){
 					if($this.find(init.check).prop('checked')){
 					total+= Number(money);
-					total_log();	
 					}
 					
 				}else{
 					total+= Number(money);
-					total_log();
 				}
-			}		
+			}
+			
+			return total_log();
 		}
 			
 		cell_money()
@@ -78,6 +80,7 @@
 				//单个
 				$(init.total).text(m);
 			}
+			return m;
 		}
 		//5触发重新计算
 		$(init.age).on('input propertychange',function(){
@@ -92,6 +95,33 @@
 					$this.find(unit.log).text(m)
 				}
 			})
+		//选中触发
+		if(init.check){
+			$('body').on('change',init.check,function(){
+				cell_money()
+			});
+		}
 		//扩展事件
+			//全部选中
+			
+		this.checked = function(){
+			
+			var $input = $(init.check),
+				checked = true;//全选
+				
+			for(var i =0;i<$input.size();i++){
+				if($input.eq(i).prop('checked') == false){
+					checked =false;
+					break;
+				}
+			}
+	
+			$input.prop('checked',!checked);
+			cell_money();
+		}
+		//重新计算
+		this.again = function(){
+			return cell_money();
+		}
 	}
 })(window.Zepto||window.jQuery)
