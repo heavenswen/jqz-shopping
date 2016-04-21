@@ -65,7 +65,7 @@
 				<td>
 					介绍
 				</td>
-				<td>名称</td>
+				<td>备注</td>
 				<td>优惠价(￥)</td>
 				<td>数目</td>
 				<td>选项</td>
@@ -79,25 +79,25 @@
 				</td>
 				<td>名称</td>
 				<td style="color: red;">
-					<span class="unit" data-unit = "125.6">125.60</span>
+					<span class="unit" data-unit = "125.6">125.6</span>
 				</td>
 				<td style="width: 15%;">
-					<span class="age">1</span>
+					<span class="age">2</span>
 				</td>
 				<td>
 					<button type="button" class="del">del</button>
 				</td>
 			</tr>
-			<tr class="li">
+			<tr class="li sp">
 				<td>
 					<input type="checkbox"   />
 				</td>
 				<td style="width: 15%;">
 					<img src="images/img04.jpg" />
 				</td>
-				<td>名称</td>
+				<td>买两送一个</td>
 				<td style="color: red;">
-					<span class="unit" data-unit = "125.6">125.60</span>
+					<span class="unit" data-unit = "125.6">125.6</span>
 				</td>
 				<td style="width: 15%;">
 					<input type="number" value="2" class="age" />
@@ -109,17 +109,45 @@
 		</table>
 		<div style="padding: 10px;">
 			<button class="all">全选</button>
+			<small style="color:red ;"><input type="radio" name="r" />快费<span>20.0</span></small>
+			<small style="color:red ;"><input type="radio" name="r" checked/>托费<span>10.0</span></small>
 			<big style="color: red;float: right;">
 			总价			
 ￥<span class="total">100</span></big>
 		</div>
-		<!--<script src="//cdn.bootcss.com/zepto/1.1.6/zepto.min.js"></script><!--zepto-->
-		<script src="jquery-2.1.4.min.js"></script>
+		<script src="//cdn.bootcss.com/zepto/1.1.6/zepto.min.js"></script><!--zepto-->
+		<!--<script src="jquery-2.1.4.min.js"></script>
 		<!--jq-->
 		<script type="text/javascript" src="jqz-shopping.js"></script>
 		<script>
 		$(function(){
-			var shop = new $.jqz_shopping({unit:['.unit',true]});
+			//单项附加事件
+			function youhui($o,m){
+				
+				if($o.hasClass('sp')){
+					var age = $o.find('.age').val();
+					if(parseFloat(age)>= 2)
+					{
+						var unit = $o.find('.unit').attr('data-unit');
+				
+						m -= unit;
+					}
+				}
+				return m;
+			}
+			//总额附加事件
+			function yunfei(m){
+				var n = $("input[type ='radio']:checked").siblings('span').text();
+				
+				if(m<=0)n= 0;
+				return m = parseFloat(m)+parseFloat(n);
+			}
+			
+			var shop = new $.jqz_shopping({
+					cell:['.li',youhui],
+					unit:['.unit',true],
+					fun:yunfei
+				});
 			
 			$('.all').click(function(){
 				shop.checked();
@@ -127,7 +155,10 @@
 			
 			$('.del').click(function(){
 				$(this).parents('tr').remove();				
-				alert(shop.again());
+				shop.again();
+			})
+			$("input[type ='radio']").on('change',function(){
+				shop.again();
 			})
 		})
 			
