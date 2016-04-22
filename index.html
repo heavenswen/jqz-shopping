@@ -58,7 +58,7 @@
 		<center>常见模式</center>
 		<table class="shopping" width="100%">
 
-			<tr class="li">
+			<tr class="">
 				<td>
 					选择
 				</td>
@@ -144,13 +144,15 @@
 			}
 			
 			var shop = new $.jqz_shopping({
-					cell:['.li',youhui],
+					cell:'.li',
+					check:'.li input',
+					single:youhui,
 					unit:['.unit',true],
 					fun:yunfei
 				});
 			
 			$('.all').click(function(){
-				shop.checked();
+				shop.prop();
 			})
 			
 			$('.del').click(function(){

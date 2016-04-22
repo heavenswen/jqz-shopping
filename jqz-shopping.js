@@ -3,7 +3,8 @@
 	$.jqz_shopping = function(arr) {
 		var init = {
 			//条目对象,和单项附加事件
-			cell: ['.li'],
+			cell: '.li',
+			single:'',
 			//单价对象，同步,输出对象
 			unit: ['.unit', false],
 			//数量对象
@@ -21,7 +22,6 @@
 		//初始化
 		if (arr) $.extend(init, arr);
 		var obj = this,
-			cell = typeof init.cell == 'object' ? init.cell['0'] : init.cell,
 			total = 0,
 			unit = [];
 		//当没有输出对象默认单价对象为输出对象
@@ -34,44 +34,57 @@
 		function js_unit($this) {
 			var
 				un = $this.find(unit.unit).attr('data-unit') || $this.find(unit.unit).text(),
-				age = $this.find(init.age).val() || $this.find(init.age).text() || 1,
-				money = parseFloat(un) * parseFloat(age);
-
+				$age = $this.find(init.age),
+				age = age_1($age),
+				money = parseFloat(un) * age;
+			
+			
 			money = tofixed(money);
 			//进行单项附加项事件
-			if (typeof init.cell == 'object' && typeof init.cell['1'] == 'function') {
-				console.log(init.cell['1'])
-				money = init.cell['1']($this, money);
+			if (typeof init.single == 'function') {
+				money = init.single($this, money);
 			}
 
 			//单项价格
 			if (unit.syn) $this.find(unit.log).text(tofixed(money));
 			return money;
 		}
-
+		//age获得一个大于1的数字
+		function age_1($age){
+			var age = Number($age.val())||Number($age.text());
+			
+			if(age<1||typeof age != 'number'){
+				if($age.is('input')){
+					$age.val(1)
+				}else{
+					$age.text(1)
+				}
+				age = 1;
+			}
+			return age;
+		}
+		
 		//2，计算个条目的价格
 		function cell_money() {
 			total = 0; //清0
-			var $cell = $(cell);
+			var $cell = $(init.cell);
 			//遍历计算
 			for (var i = 0; i < $cell.size(); i++) {
 				var $this = $cell.eq(i),
 					money = js_unit($this);
-
 				//选中项
 				if (init.check) {
 					if ($this.find(init.check).prop('checked')) {
-						total += Number(money);
+						total +=+ money;
 					}
 
 				} else {
-					total += Number(money);
+					total +=+ money;
 				}
 			}
 
 			return total_log();
 		}
-
 		cell_money();
 		//3,输出总价
 		function total_log() {
@@ -118,9 +131,9 @@
 		//扩展事件
 		//全部选中
 
-		this.checked = function() {
+		this.prop = function(check) {
 
-				var $input = $(init.check),
+				var $input = check?$(check):$(init.check),
 					checked = true; //全选
 
 				for (var i = 0; i < $input.size(); i++) {
